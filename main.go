@@ -1,45 +1,24 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+	"github.com/gin-gonic/gin"
+	"k8s-platform/config"
+	"k8s-platform/controller"
+	"k8s-platform/service"
 )
 
 func main(){
 
-	// 将kubeconfig文件转为res.config类型的对象
-	// config 在 ls ~/.kube/config
-	conf, err := clientcmd.BuildConfigFromFlags("", "E:\\goProject\\config")
-	if err != nil{
-		fmt.Println("err")
-		panic(err)
-	}
+	// 初始化k8s client
+	service.K8s.Init()   // 可以使用server.k8s.ClientSet
 
-	// 根据rest.config类型的对象，new 一个clientset出来
-	clientset, err := kubernetes.NewForConfig(conf)
-	if err != nil{
-		panic(err)
-	}
+	// 初始化gin
+	r := gin.Default()
+	// 跨包调用router的初始化方法
+	controller.Router.InitApiRouter(r)
 
-	//使用clientset获取pod列表
-	podList, err := clientset.CoreV1().Pods("default").
-		List(context.TODO(), metav1.ListOptions{})
-	if err != nil{
-		panic(err)
-	}
-
-	for _,pod := range podList.Items{
-		fmt.Println(pod.Name, pod.Namespace)
-	}
-
-
-
-
-
-
+	// 启动gin server
+	r.Run(config.ListenAddr)
 
 }
 
