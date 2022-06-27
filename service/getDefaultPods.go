@@ -12,7 +12,9 @@ func getDefaultPods(){
 
 	// 将kubeconfig文件转为res.config类型的对象
 	// config 在 ls ~/.kube/config
-	conf, err := clientcmd.BuildConfigFromFlags("", "E:\\goProject\\config")
+	//conf, err := clientcmd.BuildConfigFromFlags("", "E:\\goProject\\config")
+	// 公有k8s仓库
+	conf, err := clientcmd.BuildConfigFromFlags("", "E:\\goProject\\kubectl.kubeconfig")
 	if err != nil{
 		fmt.Println("err")
 		panic(err)
