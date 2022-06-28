@@ -17,6 +17,33 @@ var Pod pod
 
 type pod struct {}
 
+/**
+// 获取pods列表，支持过滤、排序、分页
+// 类型转换的方法 corev1.Pod --> DataCell, DataCell --> corev1.Pod
+*/
+func (p *pod) toCells(pods []corev1.Pod)  []DataCell {
+	cells := make([]DataCell, len(pods))
+	for i := range pods{
+		// todo // 这里怎么转换的？？
+		cells[i] = podCell(pods[i])
+	}
+	return cells
+}
+
+func (p *pod) fromCells(cells []DataCell) []corev1.Pod  {
+	pods := make([]corev1.Pod, len(cells))
+	for i := range cells{
+		// cells[i].(podCell) 是将DataCell类型转换成podCell
+		pods[i] = corev1.Pod(cells[i].(podCell))
+	}
+	return pods
+
+}
+
+/**
+增删改查
+*/
+
 // 定义列表的返回内容;Items是pod元素列表，Total是元素数量
 type PodsResp struct {
 	Total int `json:"total"`
@@ -79,26 +106,7 @@ func (p *pod) GetPods(filterName, namespace string, limit , page int) (podsResp 
 
 
 
-// 获取pods列表，支持过滤、排序、分页
-// 类型转换的方法 corev1.Pod --> DataCell, DataCell --> corev1.Pod
-func (p *pod) toCells(pods []corev1.Pod)  []DataCell {
-	cells := make([]DataCell, len(pods))
-	for i := range pods{
-		// todo // 这里怎么转换的？？
-		cells[i] = podCell(pods[i])
-	}
-	return cells
-}
 
-func (p *pod) fromCells(cells []DataCell) []corev1.Pod  {
-	pods := make([]corev1.Pod, len(cells))
-	for i := range cells{
-		// cells[i].(podCell) 是将DataCell类型转换成podCell
-		pods[i] = corev1.Pod(cells[i].(podCell))
-	}
-	return pods
-
-}
 
 
 // 获取pod详情
@@ -117,7 +125,7 @@ func (p *pod) DeletePod(podName, namespace string) ( err error)  {
 	err = K8s.ClientSet.CoreV1().Pods(namespace).Delete(context.TODO(), podName, metav1.DeleteOptions{})
 	if  err!= nil{
 		logger.Error("删除pod失败," + err.Error())
-		return  errors.New("获取pod详情失败," + err.Error())
+		return  errors.New("删除pod失败," + err.Error())
 	}
 	return nil
 }

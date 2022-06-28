@@ -1,6 +1,7 @@
 package service
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"sort"
 	"strings"
@@ -119,9 +120,11 @@ func  (d *dataSelector) Paginate() *dataSelector  {
 
 
 // 测试排序
+/**
 // 定义podCell，重写GetCreation和GetName方法后，可以进行数据转换
 // corev1.Pod ---> podCell ---> DataCell
 // corev1.Deployment --->DeploymentCell ---> DataCell
+ */
 type podCell corev1.Pod
 
 // 重写DataCell接口的两个方法
@@ -140,3 +143,18 @@ github搜dashboard，第一个
 点进去，再搜dataselector 源码
  */
 
+
+/**
+deployment
+ */
+
+type deploymentCell appsv1.Deployment
+
+func (d deploymentCell) GetCreation()  time.Time{
+	return d.CreationTimestamp.Time
+}
+
+func (d deploymentCell) GetName() string {
+	return d.Name
+
+}
