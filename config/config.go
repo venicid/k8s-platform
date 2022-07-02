@@ -20,7 +20,7 @@ const(
 	DbPwd = "root112358"
 
 	// 打印mysql debug的sql日志
-	LogMode = false
+	LogMode = true
 
 	// 连接池的配置
 	MaxIdleConns = 10 // 最大空闲连接

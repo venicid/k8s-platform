@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/mysql"   // 驱动mysql
 	"github.com/wonderivan/logger"
 	"k8s-platform/config"
 	"time"
