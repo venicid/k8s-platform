@@ -20,7 +20,7 @@ type WorkflowResp struct {
 }
 
 // 获取列表分页查询
-func (w *workflow) GetLWorkflows(filterName string ,limit, page int) (data *WorkflowResp, err error)  {
+func (w *workflow) GetLWorkflows(filterName, namespace string ,limit, page int) (data *WorkflowResp, err error)  {
 
 	// 定义分页数据的起始位置
 	startSet := (page-1) * limit
@@ -29,7 +29,8 @@ func (w *workflow) GetLWorkflows(filterName string ,limit, page int) (data *Work
 	var workflowList []*model.Workflow
 
 	// 数据库查询，Limit方法用于限制条数，Offset方式设置起始位置
-	tx := db.GORM.Where("name like ?", "%" + filterName + "%").
+	tx := db.GORM.Where("namespace = ?", namespace).
+		Where("name like ?", "%" + filterName + "%").
 		Limit(limit-1).Offset(startSet).Order("id desc").Find(&workflowList)
 
 	// gorm会默认把空数据也放到err中，故这里要排除空数据的情况
@@ -69,6 +70,11 @@ func (w *workflow) Add(workflow *model.Workflow)  (err error){
 }
 
 // 删除
+//软删除 db.GORM.Delete("id = ?", id)
+//软删除执行的是UPDATE语句，将deleted_at字段设置为时间即可，gorm 默认就是软删。
+//实际执行语句 UPDATE `workflow` SET `deleted_at` = '2021-03-01 08:32:11' WHERE `id` IN ('1'
+//硬删除 db.GORM.Unscoped().Delete("id = ?", id)) 直接从表中删除这条数据
+//实际执行语句 DELETE FROM `workflow` WHERE `id` IN ('1');
 func (w *workflow) DelById( id int) (err error)  {
 	workflow := &model.Workflow{}
 	tx := db.GORM.Where("id = ?", id).Delete(workflow)

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -20,6 +21,11 @@ func (r *router) InitApiRouter(router *gin.Engine){
 			"data": nil,
 		})
 	}).
+	GET("/", func(c *gin.Context) {fmt.Printf("ClientIP: %s\n", c.ClientIP())}).
+		POST("/api/k8s/workflow/create", Workflow.CreateWorkFlow).
+		GET("/api/k8s/workflows", Workflow.GetWorkflows).
+		GET("/api/k8s/workflow/detail",  Workflow.GetById).
+		DELETE("/api/k8s/workflow/del", Workflow.DeleteById).
 		GET("/api/k8s/pods", Pod.GetPods).
 		GET("/api/k8s/pod/detail", Pod.GetPodDetail).
 		DELETE("/api/k8s/pod/del", Pod.DeletePod).
@@ -27,5 +33,8 @@ func (r *router) InitApiRouter(router *gin.Engine){
 		GET("/api/k8s/pod/container", Pod.GetPodContainer).
 		GET("/api/k8s/pod/log", Pod.GetPodContainerLog).
 		GET("/api/k8s/pod/numnp", Pod.GetPodNumPerNp)
+
+
+
 
 }

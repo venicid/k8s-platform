@@ -20,6 +20,7 @@ func main(){
 
 	// 初始化gin
 	r := gin.Default()
+
 	// 跨包调用router的初始化方法
 	controller.Router.InitApiRouter(r)
 
@@ -27,7 +28,7 @@ func main(){
 	测试
 	 */
 	// 测试workflow数据库连接
-	data, _ := dao.Workflow.GetLWorkflows("nginx", 10, 1)
+	data, _ := dao.Workflow.GetLWorkflows("nginx", "default", 10, 1)
 	fmt.Println(data)
 
 	res, _ := dao.Workflow.GetById(3)

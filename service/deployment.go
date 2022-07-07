@@ -254,7 +254,7 @@ func (d *deployment) CreateDeployment(data *DeploymentCreate)(err error)  {
 
 
 // 删除Deployment
-func (p *pod) DeleteDeployment(deploymentName, namespace string) ( err error)  {
+func (d *deployment) DeleteDeployment(deploymentName, namespace string) ( err error)  {
 	err = K8s.ClientSet.AppsV1().Deployments(namespace).Delete(context.TODO(), deploymentName, metav1.DeleteOptions{})
 	if  err!= nil{
 		logger.Error("删除deployment失败," + err.Error())
