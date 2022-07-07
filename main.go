@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"k8s-platform/config"
 	"k8s-platform/controller"
-	"k8s-platform/dao"
 	"k8s-platform/db"
+	"k8s-platform/middle"
 	"k8s-platform/service"
 )
 
@@ -21,6 +20,9 @@ func main(){
 	// 初始化gin
 	r := gin.Default()
 
+	// 跨域配置
+	r.Use(middle.Cors())
+
 	// 跨包调用router的初始化方法
 	controller.Router.InitApiRouter(r)
 
@@ -28,11 +30,11 @@ func main(){
 	测试
 	 */
 	// 测试workflow数据库连接
-	data, _ := dao.Workflow.GetLWorkflows("nginx", "default", 10, 1)
-	fmt.Println(data)
-
-	res, _ := dao.Workflow.GetById(3)
-	fmt.Println(res)
+	//data, _ := dao.Workflow.GetLWorkflows("nginx", "default", 10, 1)
+	//fmt.Println(data)
+	//
+	//res, _ := dao.Workflow.GetById(3)
+	//fmt.Println(res)
 
 
 	// 启动gin server
