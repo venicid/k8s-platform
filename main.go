@@ -23,6 +23,9 @@ func main(){
 	// 跨域配置
 	r.Use(middle.Cors())
 
+	// jwt.Token
+	//r.Use(middle.JWTAuth())
+
 	// 跨包调用router的初始化方法
 	controller.Router.InitApiRouter(r)
 
