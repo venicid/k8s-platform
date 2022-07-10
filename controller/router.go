@@ -15,17 +15,23 @@ type router struct {}
 
 // 初始化路由规则
 func (r *router) InitApiRouter(router *gin.Engine){
-	router.GET("/testapi", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"msg": "test success",
-			"data": nil,
-		})
-	}).
-	GET("/", func(c *gin.Context) {fmt.Printf("ClientIP: %s\n", c.ClientIP())}).
+	router.
+		// 测试
+		GET("/testapi", func(ctx *gin.Context) {
+			ctx.JSON(http.StatusOK, gin.H{
+				"msg": "test success",
+				"data": nil,
+				})
+			}).
+		GET("/", func(c *gin.Context) {fmt.Printf("ClientIP: %s\n", c.ClientIP())}).
+		// 登录
+		POST("/api/login", Login.Auth).
+		// 工作流
 		POST("/api/k8s/workflow/create", Workflow.CreateWorkFlow).
 		GET("/api/k8s/workflows", Workflow.GetWorkflows).
 		GET("/api/k8s/workflow/detail",  Workflow.GetById).
 		DELETE("/api/k8s/workflow/del", Workflow.DeleteById).
+		// Pod操作
 		GET("/api/k8s/pods", Pod.GetPods).
 		GET("/api/k8s/pod/detail", Pod.GetPodDetail).
 		DELETE("/api/k8s/pod/del", Pod.DeletePod).

@@ -26,4 +26,8 @@ const(
 	MaxIdleConns = 10 // 最大空闲连接
 	MaxOpenConns = 100 // 最大连接数
 	MaxLifeTime = 30 * time.Second // 最大生存时间
+
+	// 用户名密码
+	AdminUser = "admin"
+	AdminPwd = "admin"
 )

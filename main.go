@@ -42,7 +42,8 @@ func main(){
 
 
 	/**
-	终端websocket
+	测试终端websocket
+	地址：https://tool.uvooc.com/websocket/
 	ws://localhost:8081/ws?namespace=default&pod_name=tstng-wf061-b965d784b-2v68r&container_name=tstng-wf061
 
 	结果：
