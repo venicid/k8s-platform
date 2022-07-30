@@ -158,3 +158,17 @@ func (d deploymentCell) GetName() string {
 	return d.Name
 
 }
+
+
+/**
+namespace
+ */
+type namespaceCell corev1.Namespace
+
+func(n namespaceCell) GetCreation() time.Time {
+	return n.CreationTimestamp.Time
+}
+
+func(n namespaceCell) GetName() string {
+	return n.Name
+}

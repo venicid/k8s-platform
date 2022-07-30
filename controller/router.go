@@ -24,13 +24,16 @@ func (r *router) InitApiRouter(router *gin.Engine){
 				})
 			}).
 		GET("/", func(c *gin.Context) {fmt.Printf("ClientIP: %s\n", c.ClientIP())}).
+
 		// 登录
 		POST("/api/login", Login.Auth).
+
 		// 工作流
 		POST("/api/k8s/workflow/create", Workflow.CreateWorkFlow).
 		GET("/api/k8s/workflows", Workflow.GetWorkflows).
 		GET("/api/k8s/workflow/detail",  Workflow.GetById).
 		DELETE("/api/k8s/workflow/del", Workflow.DeleteById).
+
 		// Pod操作
 		GET("/api/k8s/pods", Pod.GetPods).
 		GET("/api/k8s/pod/detail", Pod.GetPodDetail).
@@ -38,9 +41,11 @@ func (r *router) InitApiRouter(router *gin.Engine){
 		PUT("/api/k8s/pod/update", Pod.UpdatePod).
 		GET("/api/k8s/pod/container", Pod.GetPodContainer).
 		GET("/api/k8s/pod/log", Pod.GetPodContainerLog).
-		GET("/api/k8s/pod/numnp", Pod.GetPodNumPerNp)
+		GET("/api/k8s/pod/numnp", Pod.GetPodNumPerNp).
 
-
-
+		//namespace操作
+		GET("/api/k8s/namespaces", Namespace.GetNamespaces).
+		GET("/api/k8s/namespace/detail", Namespace.GetNamespaceDetail).
+		DELETE("/api/k8s/namespace/del", Namespace.DeleteNamespace)
 
 }
