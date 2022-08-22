@@ -172,3 +172,16 @@ func(n namespaceCell) GetCreation() time.Time {
 func(n namespaceCell) GetName() string {
 	return n.Name
 }
+
+/**
+node
+ */
+type nodeCell corev1.Node
+
+func(n nodeCell) GetCreation() time.Time {
+	return n.CreationTimestamp.Time
+}
+
+func(n nodeCell) GetName() string {
+	return n.Name
+}

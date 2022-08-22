@@ -125,6 +125,16 @@ func (d *deployment) GetDeployments(filterName, namespace string, limit , page i
 
 }
 
+//获取deployment详情
+func(d *deployment) GetDeploymentDetail(deploymentName, namespace string) (deployment *appsv1.Deployment, err error) {
+	deployment, err = K8s.ClientSet.AppsV1().Deployments(namespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
+	if err != nil {
+		logger.Error(errors.New("获取Deployment详情失败, " + err.Error()))
+		return nil, errors.New("获取Deployment详情失败, " + err.Error())
+	}
+
+	return deployment, nil
+}
 
 //设置deployment副本数
 func (d *deployment) ScaleDeployment(deploymentName, namespace string, scaleNum int) (replica int32, err error)  {
@@ -252,6 +262,23 @@ func (d *deployment) CreateDeployment(data *DeploymentCreate)(err error)  {
 	return nil
 }
 
+//更新deployment
+func(d *deployment) UpdateDeployment(namespace, content string) (err error) {
+	var deploy = &appsv1.Deployment{}
+
+	err = json.Unmarshal([]byte(content), deploy)
+	if err != nil {
+		logger.Error(errors.New("反序列化失败, " + err.Error()))
+		return errors.New("反序列化失败, " + err.Error())
+	}
+
+	_, err = K8s.ClientSet.AppsV1().Deployments(namespace).Update(context.TODO(), deploy, metav1.UpdateOptions{})
+	if err != nil {
+		logger.Error(errors.New("更新Deployment失败, " + err.Error()))
+		return errors.New("更新Deployment失败, " + err.Error())
+	}
+	return nil
+}
 
 // 删除Deployment
 func (d *deployment) DeleteDeployment(deploymentName, namespace string) ( err error)  {
@@ -307,3 +334,24 @@ func (d *deployment) RestartDeployment(deploymentName , namespace string) (err e
 	return nil
 }
 
+//获取每个namespace的deployment数量
+func(d *deployment) GetDeployNumPerNp() (deploysNps []*DeploysNp, err error) {
+	namespaceList, err := K8s.ClientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	for _, namespace := range namespaceList.Items {
+		deploymentList, err := K8s.ClientSet.AppsV1().Deployments(namespace.Name).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return nil, err
+		}
+
+		deploysNp := &DeploysNp{
+			Namespace: namespace.Name,
+			DeploymentNum:    len(deploymentList.Items),
+		}
+
+		deploysNps = append(deploysNps, deploysNp)
+	}
+	return deploysNps, nil
+}
