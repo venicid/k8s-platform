@@ -13,6 +13,7 @@ type login struct {
 
 }
 
+//验证账号密码
 func (l *login) Auth(ctx *gin.Context)  {
 	params := new(struct{
 					Username string `json:"username"`

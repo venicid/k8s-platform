@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/wonderivan/logger"
 	nwv1 "k8s.io/api/networking/v1"
@@ -12,6 +13,11 @@ var Ingress ingress
 
 type ingress struct {
 
+}
+
+type IngressesResp struct {
+	Items []nwv1.Ingress     `json:"items"`
+	Total int                `json:"total"`
 }
 
 //定义ServiceCreate结构体，用于创建service需要的参数属性的定义
@@ -28,6 +34,50 @@ type HttpPath struct {
 	PathType nwv1.PathType `json:"path_type"`
 	ServiceName string `json:"service_name"`
 	ServicePort int32 `json:"service_port"`
+}
+
+//获取ingress列表，支持过滤、排序、分页
+func(i *ingress) GetIngresses(filterName, namespace string, limit, page int) (ingressesResp *IngressesResp, err error) {
+	//获取ingressList类型的ingress列表
+	ingressList, err := K8s.ClientSet.NetworkingV1().Ingresses(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		logger.Error(errors.New("获取Ingress列表失败, " + err.Error()))
+		return nil, errors.New("获取Ingress列表失败, " + err.Error())
+	}
+	//将ingressList中的ingress列表(Items)，放进dataselector对象中，进行排序
+	selectableData := &dataSelector{
+		GenericDataList: i.toCells(ingressList.Items),
+		DataSelect: 	&DataSelectQuery{
+			Filter:   &FilterQuery{Name: filterName},
+			Paginate: &PaginateQuery{
+				Limit: limit,
+				Page:  page,
+			},
+		},
+	}
+
+	filtered := selectableData.Filter()
+	total := len(filtered.GenericDataList)
+	data := filtered.Sort().Paginate()
+
+	//将[]DataCell类型的ingress列表转为v1.ingress列表
+	ingresss := i.fromCells(data.GenericDataList)
+
+	return &IngressesResp{
+		Items: ingresss,
+		Total: total,
+	}, nil
+}
+
+//获取ingress详情
+func(i *ingress) GetIngresstDetail(ingressName, namespace string) (ingress *nwv1.Ingress, err error) {
+	ingress, err = K8s.ClientSet.NetworkingV1().Ingresses(namespace).Get(context.TODO(), ingressName, metav1.GetOptions{})
+	if err != nil {
+		logger.Error(errors.New("获取Ingress详情失败, " + err.Error()))
+		return nil, errors.New("获取Ingress详情失败, " + err.Error())
+	}
+
+	return ingress, nil
 }
 
 // 创建ingress
@@ -99,6 +149,53 @@ func (i *ingress) CreateIngress(data *IngressCreate)  (err error) {
 }
 
 
+//更新ingress
+func(i *ingress) UpdateIngress(namespace, content string) (err error) {
+	var ingress = &nwv1.Ingress{}
+
+	err = json.Unmarshal([]byte(content), ingress)
+	if err != nil {
+		logger.Error(errors.New("反序列化失败, " + err.Error()))
+		return errors.New("反序列化失败, " + err.Error())
+	}
+
+	_, err = K8s.ClientSet.NetworkingV1().Ingresses(namespace).Update(context.TODO(), ingress, metav1.UpdateOptions{})
+	if err != nil {
+		logger.Error(errors.New("更新ingress失败, " + err.Error()))
+		return errors.New("更新ingress失败, " + err.Error())
+	}
+	return nil
+}
+
+// 删除ingress
+func (i *ingress) DeleteIngress(ingressName, namespace string) ( err error)  {
+	err = K8s.ClientSet.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
+	if  err!= nil{
+		logger.Error("删除ingress失败," + err.Error())
+		return  errors.New("删除ingress失败," + err.Error())
+	}
+	return nil
+}
+
+
+func(i *ingress) toCells(std []nwv1.Ingress) []DataCell {
+	cells := make([]DataCell, len(std))
+	for i := range std {
+		cells[i] = ingressCell(std[i])
+	}
+	return cells
+}
+
+func(i *ingress) fromCells(cells []DataCell) []nwv1.Ingress {
+	ingresss := make([]nwv1.Ingress, len(cells))
+	for i := range cells {
+		ingresss[i] = nwv1.Ingress(cells[i].(ingressCell))
+	}
+
+	return ingresss
+}
+
+
 /**
 对标yaml
 
@@ -121,13 +218,3 @@ spec:
 						number: 80
  */
 
-
-// 删除ingress
-func (i *ingress) DeleteIngress(ingressName, namespace string) ( err error)  {
-	err = K8s.ClientSet.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
-	if  err!= nil{
-		logger.Error("删除ingress失败," + err.Error())
-		return  errors.New("删除ingress失败," + err.Error())
-	}
-	return nil
-}

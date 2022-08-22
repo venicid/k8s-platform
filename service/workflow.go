@@ -100,7 +100,7 @@ func createWorkflowRes(data *WorkflowCreate) (err error){
 		1. err的作用域不同，只作用if与内部
 		2. 需要data的，使用第一种，需要抛出去
 	 */
-	if err := ServiceV1.CreateService(sc); err!=nil{
+	if err := Servicev1.CreateService(sc); err!=nil{
 		return err
 	}
 
@@ -150,7 +150,7 @@ func deleteWorkflowRes(workflow *model.Workflow) (err error)  {
 		return err
 	}
 
-	err = ServiceV1.DeleteService(getServiceName(workflow.Name), workflow.Namespace)
+	err = Servicev1.DeleteService(getServiceName(workflow.Name), workflow.Namespace)
 	if err != nil{
 		return err
 	}
