@@ -12,32 +12,31 @@ import (
 var Ingress ingress
 
 type ingress struct {
-
 }
 
 type IngressesResp struct {
-	Items []nwv1.Ingress     `json:"items"`
-	Total int                `json:"total"`
+	Items []nwv1.Ingress `json:"items"`
+	Total int            `json:"total"`
 }
 
 //定义ServiceCreate结构体，用于创建service需要的参数属性的定义
 type IngressCreate struct {
-	Name string `json:"name"`
-	Namespace string `json:"namespace"`
-	Label map[string]string `json:"label"`
-	Hosts map[string][]*HttpPath `json:"hosts"`
+	Name      string                 `json:"name"`
+	Namespace string                 `json:"namespace"`
+	Label     map[string]string      `json:"label"`
+	Hosts     map[string][]*HttpPath `json:"hosts"`
 }
 
 //定义ingress的path结构体
 type HttpPath struct {
-	Path string `json:"path"`
-	PathType nwv1.PathType `json:"path_type"`
-	ServiceName string `json:"service_name"`
-	ServicePort int32 `json:"service_port"`
+	Path        string        `json:"path"`
+	PathType    nwv1.PathType `json:"path_type"`
+	ServiceName string        `json:"service_name"`
+	ServicePort int32         `json:"service_port"`
 }
 
 //获取ingress列表，支持过滤、排序、分页
-func(i *ingress) GetIngresses(filterName, namespace string, limit, page int) (ingressesResp *IngressesResp, err error) {
+func (i *ingress) GetIngresses(filterName, namespace string, limit, page int) (ingressesResp *IngressesResp, err error) {
 	//获取ingressList类型的ingress列表
 	ingressList, err := K8s.ClientSet.NetworkingV1().Ingresses(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -47,8 +46,8 @@ func(i *ingress) GetIngresses(filterName, namespace string, limit, page int) (in
 	//将ingressList中的ingress列表(Items)，放进dataselector对象中，进行排序
 	selectableData := &dataSelector{
 		GenericDataList: i.toCells(ingressList.Items),
-		DataSelect: 	&DataSelectQuery{
-			Filter:   &FilterQuery{Name: filterName},
+		DataSelect: &DataSelectQuery{
+			Filter: &FilterQuery{Name: filterName},
 			Paginate: &PaginateQuery{
 				Limit: limit,
 				Page:  page,
@@ -70,7 +69,7 @@ func(i *ingress) GetIngresses(filterName, namespace string, limit, page int) (in
 }
 
 //获取ingress详情
-func(i *ingress) GetIngresstDetail(ingressName, namespace string) (ingress *nwv1.Ingress, err error) {
+func (i *ingress) GetIngresstDetail(ingressName, namespace string) (ingress *nwv1.Ingress, err error) {
 	ingress, err = K8s.ClientSet.NetworkingV1().Ingresses(namespace).Get(context.TODO(), ingressName, metav1.GetOptions{})
 	if err != nil {
 		logger.Error(errors.New("获取Ingress详情失败, " + err.Error()))
@@ -81,7 +80,7 @@ func(i *ingress) GetIngresstDetail(ingressName, namespace string) (ingress *nwv1
 }
 
 // 创建ingress
-func (i *ingress) CreateIngress(data *IngressCreate)  (err error) {
+func (i *ingress) CreateIngress(data *IngressCreate) (err error) {
 	//声明nwv1.IngressRule和nwv1.HTTPIngressPath变量，后面组装数据
 	var ingressRules []nwv1.IngressRule
 	var httpIngressPATHs []nwv1.HTTPIngressPath
@@ -89,31 +88,31 @@ func (i *ingress) CreateIngress(data *IngressCreate)  (err error) {
 	//将data中的数据组装成nwv1.Ingress对象
 	ingress := &nwv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:                       data.Name,
-			Namespace:                  data.Namespace,
-			Labels:                     data.Label,
+			Name:      data.Name,
+			Namespace: data.Namespace,
+			Labels:    data.Label,
 		},
-		Status:     nwv1.IngressStatus{},
+		Status: nwv1.IngressStatus{},
 	}
 
 	// 第一层for循环是将host组装成nwv1.IngressRule类型的对象
 	// 一个host对应一个ingressrule，每个ingressrule中包含一个host和多个path
-	for key,value :=range data.Hosts{
+	for key, value := range data.Hosts {
 		ir := nwv1.IngressRule{
-			Host:             key,
+			Host: key,
 			//这里现将nwv1.HTTPIngressRuleValue类型中的Paths置为空，后面组装好数据再赋值
 			IngressRuleValue: nwv1.IngressRuleValue{
 				HTTP: &nwv1.HTTPIngressRuleValue{Paths: nil},
-					},
+			},
 		}
 
 		//第二层for循环是将path组装成nwv1.HTTPIngressPath类型的对象
-		for _,httpPath := range value{
+		for _, httpPath := range value {
 			hip := nwv1.HTTPIngressPath{
 				Path:     httpPath.Path,
 				PathType: &httpPath.PathType,
-				Backend:  nwv1.IngressBackend{
-					Service:  &nwv1.IngressServiceBackend{
+				Backend: nwv1.IngressBackend{
+					Service: &nwv1.IngressServiceBackend{
 						Name: httpPath.ServiceName,
 						Port: nwv1.ServiceBackendPort{
 							Number: httpPath.ServicePort,
@@ -137,20 +136,17 @@ func (i *ingress) CreateIngress(data *IngressCreate)  (err error) {
 
 	// 创建ingress
 	_, err = K8s.ClientSet.NetworkingV1().Ingresses(data.Namespace).Create(context.TODO(), ingress, metav1.CreateOptions{})
-	if err != nil{
-		logger.Error("创建ingress失败，"+err.Error())
-		return  errors.New("创建ingress失败，"+err.Error())
+	if err != nil {
+		logger.Error("创建ingress失败，" + err.Error())
+		return errors.New("创建ingress失败，" + err.Error())
 	}
-
 
 	return nil
 
-
 }
 
-
 //更新ingress
-func(i *ingress) UpdateIngress(namespace, content string) (err error) {
+func (i *ingress) UpdateIngress(namespace, content string) (err error) {
 	var ingress = &nwv1.Ingress{}
 
 	err = json.Unmarshal([]byte(content), ingress)
@@ -168,17 +164,16 @@ func(i *ingress) UpdateIngress(namespace, content string) (err error) {
 }
 
 // 删除ingress
-func (i *ingress) DeleteIngress(ingressName, namespace string) ( err error)  {
+func (i *ingress) DeleteIngress(ingressName, namespace string) (err error) {
 	err = K8s.ClientSet.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
-	if  err!= nil{
+	if err != nil {
 		logger.Error("删除ingress失败," + err.Error())
-		return  errors.New("删除ingress失败," + err.Error())
+		return errors.New("删除ingress失败," + err.Error())
 	}
 	return nil
 }
 
-
-func(i *ingress) toCells(std []nwv1.Ingress) []DataCell {
+func (i *ingress) toCells(std []nwv1.Ingress) []DataCell {
 	cells := make([]DataCell, len(std))
 	for i := range std {
 		cells[i] = ingressCell(std[i])
@@ -186,7 +181,7 @@ func(i *ingress) toCells(std []nwv1.Ingress) []DataCell {
 	return cells
 }
 
-func(i *ingress) fromCells(cells []DataCell) []nwv1.Ingress {
+func (i *ingress) fromCells(cells []DataCell) []nwv1.Ingress {
 	ingresss := make([]nwv1.Ingress, len(cells))
 	for i := range cells {
 		ingresss[i] = nwv1.Ingress(cells[i].(ingressCell))
@@ -194,7 +189,6 @@ func(i *ingress) fromCells(cells []DataCell) []nwv1.Ingress {
 
 	return ingresss
 }
-
 
 /**
 对标yaml
@@ -216,5 +210,4 @@ spec:
 					name: myapp-svc
 					port:
 						number: 80
- */
-
+*/

@@ -2,10 +2,12 @@ package config
 
 import "time"
 
-const(
+const (
 	ListenAddr = "0.0.0.0:9090"
 	//KubeConfig = "E:\\goProject\\config"
-	KubeConfig = "E:\\goProject\\admin.conf"
+	//KubeConfig = "E:\\goProject\\admin.conf"
+	KubeConfig = "E:\\helloGolang\\src\\k8s-plateform-code\\k8s-platform\\config\\admin.conf"
+
 	//KubeConfig = "E:\\goProject\\kubectl.kubeconfig"
 
 	// tail的日志行数
@@ -18,17 +20,17 @@ const(
 	DbPort = 3306
 	DbName = "k8s_demo"
 	DbUser = "root"
-	DbPwd = "root112358"
+	DbPwd  = "root112358"
 
 	// 打印mysql debug的sql日志
 	LogMode = true
 
 	// 连接池的配置
-	MaxIdleConns = 10 // 最大空闲连接
-	MaxOpenConns = 100 // 最大连接数
-	MaxLifeTime = 30 * time.Second // 最大生存时间
+	MaxIdleConns = 10               // 最大空闲连接
+	MaxOpenConns = 100              // 最大连接数
+	MaxLifeTime  = 30 * time.Second // 最大生存时间
 
 	// 用户名密码
 	AdminUser = "admin"
-	AdminPwd = "admin"
+	AdminPwd  = "admin"
 )

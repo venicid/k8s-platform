@@ -10,13 +10,13 @@ import (
 	"net/http"
 )
 
-func main(){
+func main() {
 
 	// 初始化数据库
 	db.Init()
 
 	// 初始化k8s client
-	service.K8s.Init()   // 可以使用server.k8s.ClientSet
+	service.K8s.Init() // 可以使用server.k8s.ClientSet
 
 	// 初始化gin
 	r := gin.Default()
@@ -32,14 +32,13 @@ func main(){
 
 	/**
 	测试
-	 */
+	*/
 	// 测试workflow数据库连接
 	//data, _ := dao.Workflow.GetLWorkflows("nginx", "default", 10, 1)
 	//fmt.Println(data)
 	//
 	//res, _ := dao.Workflow.GetById(3)
 	//fmt.Println(res)
-
 
 	/**
 	测试终端websocket
@@ -93,13 +92,12 @@ func main(){
 	{"operation":"stdout","data":"\r\n","rows":0,"cols":0}
 	服务端回应 2022-08-22 23:29:47
 	{"operation":"stdout","data":" 15:29:47 up 4:49, load average: 1.74, 1.94, 1.90\r\n/ # \u001b[6n","rows":0,"cols":0}
-	 */
+	*/
 
 	go func() {
 		http.HandleFunc("/ws", service.Terminal.WhHandler)
 		http.ListenAndServe(":8081", nil)
 	}()
-
 
 	// 启动gin server
 	r.Run(config.ListenAddr)
@@ -108,7 +106,3 @@ func main(){
 	db.Close()
 
 }
-
-
-
-

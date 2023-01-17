@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"   // 驱动mysql
+	_ "github.com/jinzhu/gorm/dialects/mysql" // 驱动mysql
 	"github.com/wonderivan/logger"
 	"k8s-platform/config"
 	"time"
@@ -11,23 +11,23 @@ import (
 
 var (
 	isInit bool
-	GORM *gorm.DB
-	err error
+	GORM   *gorm.DB
+	err    error
 )
 
 // db的初始化函数，与数据库建立连接
-func Init()  {
+func Init() {
 	// 判断是否已经初始化了
-	if isInit{
+	if isInit {
 		return
 	}
 
 	// 组装连接配置
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
-	config.DbUser, config.DbPwd, config.DbHost, config.DbPort,config.DbName)
-	GORM, err =gorm.Open(config.DbType, dsn)
-	if err!= nil{
-		panic("数据库连接失败，"+ err.Error())
+		config.DbUser, config.DbPwd, config.DbHost, config.DbPort, config.DbName)
+	GORM, err = gorm.Open(config.DbType, dsn)
+	if err != nil {
+		panic("数据库连接失败，" + err.Error())
 	}
 
 	// 打印sql语句
@@ -42,8 +42,7 @@ func Init()  {
 	logger.Info("数据库初始化成功")
 }
 
-
 // 关闭数据库连接
-func Close()  error {
+func Close() error {
 	return GORM.Close()
 }

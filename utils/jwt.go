@@ -45,7 +45,7 @@ func (j *jwtToken) ParseToken(tokenString string) (claims *CustomClaims, err err
 		}
 	}
 	//转换成*CustomClaims类型并返回
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid{
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return claims, nil
 	}
 	return
