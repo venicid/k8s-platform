@@ -34,10 +34,10 @@ func main() {
 	测试
 	*/
 	// 测试workflow数据库连接
-	//data, _ := dao.Workflow.GetLWorkflows("nginx", "default", 10, 1)
+	//data, _ := dal.Workflow.GetLWorkflows("nginx", "default", 10, 1)
 	//fmt.Println(data)
 	//
-	//res, _ := dao.Workflow.GetById(3)
+	//res, _ := dal.Workflow.GetById(3)
 	//fmt.Println(res)
 
 	/**
